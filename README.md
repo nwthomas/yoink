@@ -1,2 +1,3 @@
-# pfp
-Smart contracts for minting my own profile pictures
+## pfp 📸
+
+Smart contracts for minting your own profile pictures for social media.
