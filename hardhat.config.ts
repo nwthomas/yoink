@@ -16,7 +16,7 @@ type HardhatUserConfigExtended = HardhatUserConfig & { [key: string]: any };
  * @type import('hardhat/config').HardhatUserConfig
  */
 const config: HardhatUserConfigExtended = {
-  solidity: "0.8.4",
+  solidity: "0.8.12",
   networks: {
     rinkeby: {
       url: process.env.RINKEBY_APP_SECRET_KEY || "",
