@@ -1,3 +1,3 @@
-## pfp 📸
+## GIMME THAT HEX 📸
 
-Smart contracts for minting your own profile pictures for social media.
+Smart contracts for minting your own profile pictures for Twitter and other social media.
