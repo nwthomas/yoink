@@ -4,7 +4,6 @@ pragma solidity ^0.8.12;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
-import { Base64 } from "./libraries/Base64.sol";
 
 contract ProfilePicture is Ownable, ERC721URIStorage {
   using Strings for uint256;
@@ -14,6 +13,10 @@ contract ProfilePicture is Ownable, ERC721URIStorage {
 
   mapping(address => bool) public exemptAddresses;
 
+  event AddExemptAddress(address indexed exemptAddress);
+  event RemoveExemptAddress(address indexed removedAddress);
+  event MintToken(address indexed owner, uint256 indexed tokenID);
+  event UpdateTokenURI(address indexed owner, uint256 indexed tokenID);
   event Withdraw(address indexed to, address indexed project, uint256 amount);
 
   modifier isMinimumFeeOrExemptAddress() {
@@ -59,12 +62,14 @@ contract ProfilePicture is Ownable, ERC721URIStorage {
   /// @param _address The address that will be exempt from minting fees
   function addExemptAddress(address _address) public onlyOwner {
     exemptAddresses[_address] = true;
+    emit AddExemptAddress(_address);
   }
 
   /// @notice Removes an exempt address which will now have to pay minting fees
   /// @param _address The address to be removed from fee exemption
   function removeExemptAddress(address _address) public onlyOwner {
     exemptAddresses[_address] = false;
+    emit RemoveExemptAddress(_address);
   }
 
   /// @notice Mints a new profile picture NFT
@@ -75,6 +80,8 @@ contract ProfilePicture is Ownable, ERC721URIStorage {
     isMinimumFeeOrExemptAddress
   {
     _safeMint(msg.sender, newTokenID);
+    emit MintToken(msg.sender, newTokenID);
+
     updateTokenURI(newTokenID, _newTokenMetadataURI);
     newTokenID += 1;
   }
@@ -87,6 +94,7 @@ contract ProfilePicture is Ownable, ERC721URIStorage {
     isTokenOwner(_tokenID)
   {
     _setTokenURI(_tokenID, _newTokenMetadataURI);
+    emit UpdateTokenURI(msg.sender, _tokenID);
   }
 
   /// @notice Allows the owner of the contract to withdraw all ether in it
