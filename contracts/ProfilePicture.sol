@@ -77,7 +77,10 @@ contract ProfilePicture is Ownable, ERC721URIStorage {
   /// @param _addresses The addresses that will have their exemption toggled
   /// Note This function can toggle true -> false and false -> true for various
   /// addresses in the same array within the same transaction
-  function toggleExemptAddresses(address[] memory _addresses) external onlyOwner {
+  function toggleExemptAddresses(address[] memory _addresses)
+    external
+    onlyOwner
+  {
     require(_addresses.length > 0, "ProfilePicture: send valid addresses");
 
     for (uint256 i = 0; i < _addresses.length; i++) {
