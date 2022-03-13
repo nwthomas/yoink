@@ -147,35 +147,35 @@ contract ProfilePicture is Ownable, ERC721URIStorage {
     pure
     returns (string memory)
   {
-    string memory json = Base64.encode(
-      bytes(
-        string(
-          abi.encodePacked(
-            '{"name": "',
-            _metadata.name,
-            '", "description": "',
-            _metadata.description,
-            '", "image": "',
-            _metadata.image,
-            '", "attributes": ',
-            _buildMetadataAttributes(_metadata.attributes),
-            "}"
+    return
+      string(
+        abi.encodePacked(
+          "data:application/json;base64,",
+          Base64.encode(
+            bytes(
+              string(
+                abi.encodePacked(
+                  '{"name": "',
+                  _metadata.name,
+                  '", "description": "',
+                  _metadata.description,
+                  '", "image": "',
+                  _metadata.image,
+                  '", "attributes": ',
+                  _buildAttributesJSON(_metadata.attributes),
+                  "}"
+                )
+              )
+            )
           )
         )
-      )
-    );
-
-    string memory tokenURI = string(
-      abi.encodePacked("data:application/json;base64,", json)
-    );
-
-    return tokenURI;
+      );
   }
 
   /// @notice Constructs a static JSON-compliant string for metadata attributes
   /// @param _attributes The attributes array to be converted into a string
   /// @return string The attributes string
-  function _buildMetadataAttributes(Attribute[] memory _attributes)
+  function _buildAttributesJSON(Attribute[] memory _attributes)
     internal
     pure
     returns (string memory)
@@ -193,18 +193,16 @@ contract ProfilePicture is Ownable, ERC721URIStorage {
         comma = ",";
       }
 
-      string memory attribute = string(
+      attributesJSON = string(
         abi.encodePacked(
+          attributesJSON,
+          comma,
           '{"trait_type": "',
           _attributes[i].trait_type,
           '", "value": "',
           _attributes[i].value,
           '"}'
         )
-      );
-
-      attributesJSON = string(
-        abi.encodePacked(attributesJSON, comma, attribute)
       );
     }
 
@@ -215,7 +213,7 @@ contract ProfilePicture is Ownable, ERC721URIStorage {
   /// @param _newMintingFee The new minting fee to be saved in state
   /// Note The minting fee must be greater-than-or-equal-to 0
   function updateMintingFee(uint256 _newMintingFee) public onlyOwner {
-    require(_newMintingFee >= 0, "ProfilePicture: must be valid fee");
+    require(_newMintingFee >= 0, "ProfilePicture: invalid fee");
     mintingFee = _newMintingFee;
   }
 
