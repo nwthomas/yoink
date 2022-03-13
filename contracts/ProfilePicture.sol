@@ -4,7 +4,11 @@ pragma solidity ^0.8.12;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
+import { Base64 } from "./libraries/Base64.sol";
 
+/// @title ProfilePicture
+/// @notice Creates a modifiable NFT for using as a profile picture
+/// @author Nathan Thomas
 contract ProfilePicture is Ownable, ERC721URIStorage {
   using Strings for uint256;
 
@@ -12,6 +16,18 @@ contract ProfilePicture is Ownable, ERC721URIStorage {
   uint256 public mintingFee;
 
   mapping(address => bool) public exemptAddresses;
+
+  // https://docs.opensea.io/docs/metadata-standards
+  struct Attribute {
+    string trait_type;
+    string value;
+  }
+  struct TokenMetadata {
+    string description;
+    string image;
+    string name;
+    Attribute[] attributes;
+  }
 
   event AddExemptAddress(address indexed exemptAddress);
   event RemoveExemptAddress(address indexed removedAddress);
@@ -86,6 +102,18 @@ contract ProfilePicture is Ownable, ERC721URIStorage {
     newTokenID += 1;
   }
 
+  function mintNFT(TokenMetadata memory _newTokenMetadata)
+    public
+    payable
+    isMinimumFeeOrExemptAddress
+  {
+    _safeMint(msg.sender, newTokenID);
+    emit MintToken(msg.sender, newTokenID);
+
+    updateTokenURI(newTokenID, _newTokenMetadata);
+    newTokenID += 1;
+  }
+
   /// @notice Allows the owner of any token to update that token's URI
   /// @param _tokenID The token ID that will have its URI updated
   /// @param _newTokenMetadataURI The metadata URI to update for the token ID
@@ -95,6 +123,83 @@ contract ProfilePicture is Ownable, ERC721URIStorage {
   {
     _setTokenURI(_tokenID, _newTokenMetadataURI);
     emit UpdateTokenURI(msg.sender, _tokenID);
+  }
+
+  function updateTokenURI(
+    uint256 _tokenID,
+    TokenMetadata memory _newTokenMetadata
+  ) public isTokenOwner(_tokenID) {
+    _setTokenURI(_tokenID, _buildTokenURI(_newTokenMetadata));
+    emit UpdateTokenURI(msg.sender, _tokenID);
+  }
+
+  function _buildTokenURI(TokenMetadata memory _metadata)
+    internal
+    pure
+    returns (string memory)
+  {
+    string memory json = Base64.encode(
+      bytes(
+        string(
+          abi.encodePacked(
+            '{"name": "',
+            _metadata.name,
+            '", "description": "',
+            _metadata.description,
+            '", "image": "',
+            _metadata.image,
+            '", "attributes": ',
+            _buildMetadataAttributes(_metadata.attributes),
+            "}"
+          )
+        )
+      )
+    );
+
+    string memory tokenURI = string(
+      abi.encodePacked("data:application/json;base64,", json)
+    );
+
+    return tokenURI;
+  }
+
+  /// @notice Constructs a static JSON-compliant string for metadata attributes
+  /// @param _attributes The attributes array to be converted into a string
+  /// @return string The attributes string
+  function _buildMetadataAttributes(Attribute[] memory _attributes)
+    internal
+    pure
+    returns (string memory)
+  {
+    string memory attributesJSON = "[";
+
+    if (_attributes.length <= 0) {
+      return string(abi.encodePacked(attributesJSON, "]"));
+    }
+
+    for (uint256 i = 0; i < _attributes.length; i++) {
+      string memory comma = "";
+
+      if (i > 0) {
+        comma = ",";
+      }
+
+      string memory attribute = string(
+        abi.encodePacked(
+          '{"trait_type": "',
+          _attributes[i].trait_type,
+          '", "value": "',
+          _attributes[i].value,
+          '"}'
+        )
+      );
+
+      attributesJSON = string(
+        abi.encodePacked(attributesJSON, comma, attribute)
+      );
+    }
+
+    return string(abi.encodePacked(attributesJSON, "]"));
   }
 
   /// @notice Allows the owner of the contract to withdraw all ether in it

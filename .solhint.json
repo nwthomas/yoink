@@ -4,8 +4,11 @@
     "avoid-low-level-calls": "off",
     "compiler-version": ["error", "^0.8.0"],
     "func-visibility": ["warn", { "ignoreConstructors": true }],
+    "no-empty-blocks": "off",
+    "no-inline-assembly": "off",
     "not-rely-on-time": "off",
+    "quotes": "off",
     "reason-string": "off",
-    "quotes": "off"
+    "var-name-mixedcase": "off"
   }
 }
