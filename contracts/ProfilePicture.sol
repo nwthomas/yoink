@@ -73,18 +73,16 @@ contract ProfilePicture is Ownable, ERC721URIStorage {
     mintNFT(_firstTokenMetadataURI);
   }
 
-  /// @notice Adds an exempt address which will not be charged minting fees
-  /// @param _address The address that will be exempt from minting fees
-  function addExemptAddress(address _address) public onlyOwner {
-    exemptAddresses[_address] = true;
-    emit AddExemptAddress(_address);
-  }
+  /// @notice Toggles the boolean value of addresses to be exempt from minting fee
+  /// @param _addresses The addresses that will have their exemption toggled
+  /// Note This function can toggle true -> false and false -> true for various
+  /// addresses in the same array within the same transaction
+  function toggleExemptAddresses(address[] memory _addresses) external onlyOwner {
+    require(_addresses.length > 0, "ProfilePicture: send valid addresses");
 
-  /// @notice Removes an exempt address which will now have to pay minting fees
-  /// @param _address The address to be removed from fee exemption
-  function removeExemptAddress(address _address) public onlyOwner {
-    exemptAddresses[_address] = false;
-    emit RemoveExemptAddress(_address);
+    for (uint256 i = 0; i < _addresses.length; i++) {
+      exemptAddresses[_addresses[i]] = !exemptAddresses[_addresses[i]];
+    }
   }
 
   /// @notice Mints a new profile picture NFT with a dynamic metadata URL
