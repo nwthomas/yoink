@@ -3,12 +3,11 @@ pragma solidity ^0.8.12;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
-import "@openzeppelin/contracts/utils/Strings.sol";
 import { Base64 } from "./libraries/Base64.sol";
 
 /// @title ProfilePicture
 /// @notice Creates a modifiable NFT for using as a profile picture
-/// @author Nathan Thomas
+/// @author Nathan Thomas <nathan@loom.com>
 contract ProfilePicture is Ownable, ERC721URIStorage {
   using Strings for uint256;
 
@@ -88,8 +87,10 @@ contract ProfilePicture is Ownable, ERC721URIStorage {
     emit RemoveExemptAddress(_address);
   }
 
-  /// @notice Mints a new profile picture NFT
+  /// @notice Mints a new profile picture NFT with a dynamic metadata URL
   /// @param _newTokenMetadataURI The URI to be assigned to the new token
+  /// @dev The token metadata URL should load in JSON in the following schema:
+  /// https://docs.opensea.io/docs/metadata-standards
   function mintNFT(string memory _newTokenMetadataURI)
     public
     payable
@@ -102,6 +103,10 @@ contract ProfilePicture is Ownable, ERC721URIStorage {
     newTokenID += 1;
   }
 
+  /// @notice Mins a new profile picture NFT with static token metadata
+  /// @param _newTokenMetadata The static metadata object for the token
+  /// @dev The token metadata schema should follow these instructions:
+  /// https://docs.opensea.io/docs/metadata-standards
   function mintNFT(TokenMetadata memory _newTokenMetadata)
     public
     payable
@@ -114,7 +119,7 @@ contract ProfilePicture is Ownable, ERC721URIStorage {
     newTokenID += 1;
   }
 
-  /// @notice Allows the owner of any token to update that token's URI
+  /// @notice Allows the owner of any token to update the URL for that token's URI
   /// @param _tokenID The token ID that will have its URI updated
   /// @param _newTokenMetadataURI The metadata URI to update for the token ID
   function updateTokenURI(uint256 _tokenID, string memory _newTokenMetadataURI)
@@ -125,6 +130,10 @@ contract ProfilePicture is Ownable, ERC721URIStorage {
     emit UpdateTokenURI(msg.sender, _tokenID);
   }
 
+  /// @notice Allows the owner of any token to assign a static metadata object
+  /// @param _tokenID The token ID that will have its URI updated
+  /// @param _newTokenMetadata The metadata object to be parsed into base 64
+  /// encoding and stored onchain
   function updateTokenURI(
     uint256 _tokenID,
     TokenMetadata memory _newTokenMetadata
