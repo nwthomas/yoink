@@ -1,4 +1,4 @@
-### NOTE: This contract is completely unaudited. If you deploy and use this, you do so at your own risk!
+### NOTE: This contract is completely unaudited. If you use this, you do so at your own risk!
 
 # PFP 📸
 

@@ -5,7 +5,7 @@ async function main() {
     "ProfilePicture"
   );
 
-  // Update these with values before deploying
+  // Update these with values before running tests
   const name = ""; // Example: "Uniswap"
   const symbol = ""; // Example: "UNI"
   const mintingFee = "0"; // Example: ethers.utils.parseEther("0.01").toString();
