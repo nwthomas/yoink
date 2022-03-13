@@ -7,7 +7,7 @@ import { Base64 } from "./libraries/Base64.sol";
 
 /// @title ProfilePicture
 /// @notice Creates a modifiable NFT for using as a profile picture
-/// @author Nathan Thomas <nathan@loom.com>
+/// @author Nathan Thomas
 contract ProfilePicture is Ownable, ERC721URIStorage {
   using Strings for uint256;
 
@@ -209,6 +209,14 @@ contract ProfilePicture is Ownable, ERC721URIStorage {
     }
 
     return string(abi.encodePacked(attributesJSON, "]"));
+  }
+
+  /// @notice Allows the contract owner to update the minting fee value
+  /// @param _newMintingFee The new minting fee to be saved in state
+  /// Note The minting fee must be greater-than-or-equal-to 0
+  function updateMintingFee(uint256 _newMintingFee) public onlyOwner {
+    require(_newMintingFee >= 0, "ProfilePicture: must be valid fee");
+    mintingFee = _newMintingFee;
   }
 
   /// @notice Allows the owner of the contract to withdraw all ether in it
