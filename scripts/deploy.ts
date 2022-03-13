@@ -1,8 +1,8 @@
 import { ethers } from "hardhat";
 
 async function main() {
-  const ProfilePictureContractFactory = await ethers.getContractFactory(
-    "ProfilePicture"
+  const GimmeTokenContractFactory = await ethers.getContractFactory(
+    "GimmeToken"
   );
 
   // Update these with values before deploying
@@ -11,15 +11,15 @@ async function main() {
   const mintingFee = "0"; // Example: ethers.utils.parseEther("0.01").toString();
   const firstTokenMetadataURI = ""; // Example: https://www.nathanthomas.dev/nathan-metadata.json
 
-  const profilePicture = await ProfilePictureContractFactory.deploy(
+  const gimmeToken = await GimmeTokenContractFactory.deploy(
     name,
     symbol,
     mintingFee,
     firstTokenMetadataURI
   );
 
-  await profilePicture.deployed();
-  console.log("ProfilePicture deployed to:", profilePicture.address);
+  await gimmeToken.deployed();
+  console.log("GimmeToken deployed to:", gimmeToken.address);
 }
 
 main().catch((error) => {

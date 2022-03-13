@@ -6,7 +6,7 @@ const { expect } = chai;
 
 chai.use(solidity);
 
-describe("ProfilePicture", () => {
+describe("GimmeToken", () => {
   let account1: SignerWithAddress;
   let account2: SignerWithAddress;
   let account3: SignerWithAddress;
@@ -20,7 +20,7 @@ describe("ProfilePicture", () => {
   });
 
   const getDeployedContract = async () => {
-    const contractFactory = await ethers.getContractFactory("ProfilePicture");
+    const contractFactory = await ethers.getContractFactory("GimmeToken");
     const contract = await contractFactory.deploy();
 
     return contract;

@@ -1,6 +1,6 @@
 ### NOTE: This contract is completely unaudited. If you use this, you do so at your own risk!
 
-# PFP 📸
+# GIMME TOKEN 📸
 
 ## TABLE OF CONTENTS
 
@@ -11,7 +11,7 @@
 
 ## DESCRIPTION
 
-Smart contracts for minting your own profile pictures for Twitter and other social media.
+Smart contracts for minting your own custom NFT tokens. This is incredibly useful for social media (e.g. Twitter's NFT profile pictures) as well as a variety of other use cases.
 
 ## GETTING STARTED
 
