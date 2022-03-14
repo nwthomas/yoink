@@ -86,7 +86,119 @@ describe("GimmeToken", () => {
   });
 
   describe("exempt addresses", () => {
-    // finish
+    it("exempts an address if toggleExemptAddress is called", async () => {
+      const contract = await getDeployedContract(deployArgs);
+
+      let addressExemptionStatusTxn = await contract.exemptAddresses(
+        account3.address
+      );
+      expect(addressExemptionStatusTxn).to.equal(false);
+
+      await contract.toggleExemptAddresses([account3.address]);
+
+      addressExemptionStatusTxn = await contract.exemptAddresses(
+        account3.address
+      );
+      expect(addressExemptionStatusTxn).to.equal(true);
+    });
+
+    it("un-exempts an address with toggleExemptAddress", async () => {
+      const contract = await getDeployedContract(deployArgs);
+
+      await contract.toggleExemptAddresses([account3.address]);
+      let addressExemptionStatusTxn = await contract.exemptAddresses(
+        account3.address
+      );
+      expect(addressExemptionStatusTxn).to.equal(true);
+
+      await contract.toggleExemptAddresses([account3.address]);
+      addressExemptionStatusTxn = await contract.exemptAddresses(
+        account3.address
+      );
+      expect(addressExemptionStatusTxn).to.equal(false);
+    });
+
+    it("emits an AddExemptAddress event", async () => {
+      const contract = await getDeployedContract(deployArgs);
+
+      const addExemptAddressTxn = await contract.toggleExemptAddresses([
+        account2.address,
+      ]);
+      expect(addExemptAddressTxn)
+        .to.emit(contract, "AddExemptAddress")
+        .withArgs(account2.address);
+    });
+
+    it("emits a RemoveExemptAddress event", async () => {
+      const contract = await getDeployedContract(deployArgs);
+
+      await contract.toggleExemptAddresses([account2.address]);
+
+      const removeExemptAddressTxn = await contract.toggleExemptAddresses([
+        account2.address,
+      ]);
+      expect(removeExemptAddressTxn)
+        .to.emit(contract, "RemoveExemptAddress")
+        .withArgs(account2.address);
+    });
+
+    it("can toggle multiple addresses at once", async () => {
+      const contract = await getDeployedContract(deployArgs);
+
+      await contract.toggleExemptAddresses([account2.address]);
+      await contract.toggleExemptAddresses([
+        account1.address,
+        account2.address,
+        account3.address,
+      ]);
+
+      const [account1Status, account2Status, account3Status] =
+        await Promise.all([
+          contract.exemptAddresses(account1.address),
+          contract.exemptAddresses(account2.address),
+          contract.exemptAddresses(account3.address),
+        ]);
+
+      expect(account1Status).to.equal(true);
+      expect(account2Status).to.equal(false);
+      expect(account3Status).to.equal(true);
+    });
+
+    it("emits multiple events at once", async () => {
+      const contract = await getDeployedContract(deployArgs);
+
+      await contract.toggleExemptAddresses([account2.address]);
+      const toggleExemptionTxn = await contract.toggleExemptAddresses([
+        account1.address,
+        account2.address,
+        account3.address,
+      ]);
+
+      expect(toggleExemptionTxn)
+        .to.emit(contract, "AddExemptAddress")
+        .withArgs(account1.address);
+      expect(toggleExemptionTxn)
+        .to.emit(contract, "RemoveExemptAddress")
+        .withArgs(account2.address);
+      expect(toggleExemptionTxn)
+        .to.emit(contract, "AddExemptAddress")
+        .withArgs(account3.address);
+    });
+
+    it("allows toggling many times for same address", async () => {
+      const contract = await getDeployedContract(deployArgs);
+      let currentState = false;
+
+      for (let i = 0; i < 100; i++) {
+        const addressExemptionStatusTxn = await contract.exemptAddresses(
+          account3.address
+        );
+        expect(addressExemptionStatusTxn).to.equal(currentState);
+
+        await contract.toggleExemptAddresses([account3.address]);
+        currentState = !currentState;
+      }
+    });
   });
 
   describe("mint NFT", () => {

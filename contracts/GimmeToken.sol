@@ -82,6 +82,12 @@ contract GimmeToken is Ownable, ERC721URIStorage {
 
     for (uint256 i = 0; i < _addresses.length; i++) {
       exemptAddresses[_addresses[i]] = !exemptAddresses[_addresses[i]];
+
+      if (exemptAddresses[_addresses[i]]) {
+        emit AddExemptAddress(_addresses[i]);
+      } else {
+        emit RemoveExemptAddress(_addresses[i]);
+      }
     }
   }
 
