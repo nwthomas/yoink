@@ -7,12 +7,12 @@ import { Base64 } from "./libraries/Base64.sol";
 
 /// @title GimmeToken
 /// @notice Creates modifiable NFTs for any wallet address
-/// @author Nathan Thomas
+/// @author Nathan Thomas <nathan@loom.com>
 contract GimmeToken is Ownable, ERC721URIStorage {
   using Strings for uint256;
 
-  uint256 public newTokenID = 0;
-  uint256 public mintingFee;
+  uint256 public newTokenID = 1;
+  uint256 public mintingFee = 0;
 
   mapping(address => bool) public exemptAddresses;
 
@@ -66,7 +66,7 @@ contract GimmeToken is Ownable, ERC721URIStorage {
     uint256 _mintingFee,
     string memory _firstTokenMetadataURI
   ) ERC721(_name, _symbol) {
-    mintingFee = _mintingFee;
+    updateMintingFee(_mintingFee);
     mintNFT(_firstTokenMetadataURI);
   }
 
@@ -213,7 +213,6 @@ contract GimmeToken is Ownable, ERC721URIStorage {
   /// @param _newMintingFee The new minting fee to be saved in state
   /// Note The minting fee must be greater-than-or-equal-to 0
   function updateMintingFee(uint256 _newMintingFee) public onlyOwner {
-    require(_newMintingFee >= 0, "GimmeToken: invalid fee");
     mintingFee = _newMintingFee;
   }
 
