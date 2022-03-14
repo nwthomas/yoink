@@ -202,6 +202,22 @@ describe("GimmeToken", () => {
   });
 
   describe("mint NFT", () => {
+    const mockTokenMetadataJSON = Object.freeze({
+      description: "test description",
+      image: "www.testing.com",
+      name: "test name",
+      attributes: [
+        {
+          trait_type: "test trait 1",
+          value: "test value 1",
+        },
+        {
+          trait_type: "test trait 2",
+          value: "test value 2",
+        },
+      ],
+    });
+
     it("mints an NFT with a URL for the token URI on deploy", async () => {
       const contract = await getDeployedContract(deployArgs);
 
@@ -225,18 +241,6 @@ describe("GimmeToken", () => {
     it("mints an NFT with static token URI via function call", async () => {
       const contract = await getDeployedContract(deployArgs);
 
-      const mockTokenMetadataJSON = {
-        description: "test description",
-        image: "www.testing.com",
-        name: "test name",
-        attributes: [
-          {
-            trait_type: "test trait",
-            value: "test value",
-          },
-        ],
-      };
-
       // @ts-ignore TS cannot detect the (string,string)[] attributes sub-type
       await contract["mintNFT((string,string,string,(string,string)[]))"](
         mockTokenMetadataJSON
@@ -249,6 +253,34 @@ describe("GimmeToken", () => {
       expect(JSON.parse(atob(base46EncodedMetadata))).to.eql(
         mockTokenMetadataJSON
       );
+    });
+
+    it("increments newTokenID each time", async () => {
+      const contract = await getDeployedContract(deployArgs);
+
+      // Starts at 2 due to mint on deploy which is token ID = 1
+      for (let i = 2; i <= 10; i++) {
+        const tokenIDTxn = await contract.newTokenID();
+        expect(tokenIDTxn).to.equal(i);
+        await contract["mintNFT(string)"]("www.testing.com");
+      }
+    });
+
+    it("emits a MintToken event on deploy", async () => {
+      const contract = await getDeployedContract(deployArgs);
+      expect(contract.deployTransaction)
+        .to.emit(contract, "MintToken")
+        .withArgs(account1.address, 1);
+    });
+
+    it("emits a MintToken event", async () => {
+      const contract = await getDeployedContract(deployArgs);
+
+      const mintTokenTxn = await contract["mintNFT(string)"]("www.testing.com");
+
+      expect(mintTokenTxn)
+        .to.emit(contract, "MintToken")
+        .withArgs(account1.address, 2);
     });
   });
 

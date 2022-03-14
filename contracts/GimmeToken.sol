@@ -196,7 +196,7 @@ contract GimmeToken is Ownable, ERC721URIStorage {
     string memory comma = "";
 
     for (uint256 i = 0; i < _attributes.length; i++) {
-      if (i > 0) {
+      if (i == 1) {
         comma = ",";
       }
 
