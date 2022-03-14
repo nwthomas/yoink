@@ -162,12 +162,12 @@ contract GimmeToken is Ownable, ERC721URIStorage {
             bytes(
               string(
                 abi.encodePacked(
-                  '{"name": "',
-                  _metadata.name,
-                  '", "description": "',
+                  '{"description": "',
                   _metadata.description,
                   '", "image": "',
                   _metadata.image,
+                  '", "name": "',
+                  _metadata.name,
                   '", "attributes": ',
                   _buildAttributesJSON(_metadata.attributes),
                   "}"
