@@ -6,7 +6,8 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import { Base64 } from "./libraries/Base64.sol";
 
 /// @title GimmeToken
-/// @notice Creates modifiable NFTs for any wallet address
+/// @notice Creates modifiable NFTs for any wallet address. This contract is not
+/// audited, so use at your own risk
 /// @author Nathan Thomas <nathan@loom.com>
 contract GimmeToken is Ownable, ERC721URIStorage {
   using Strings for uint256;
@@ -192,9 +193,9 @@ contract GimmeToken is Ownable, ERC721URIStorage {
       return string(abi.encodePacked(attributesJSON, "]"));
     }
 
-    for (uint256 i = 0; i < _attributes.length; i++) {
-      string memory comma = "";
+    string memory comma = "";
 
+    for (uint256 i = 0; i < _attributes.length; i++) {
       if (i > 0) {
         comma = ",";
       }

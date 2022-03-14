@@ -18,7 +18,7 @@ describe("GimmeToken", () => {
   let account2: SignerWithAddress;
   let account3: SignerWithAddress;
 
-  const deployArgs = {
+  const deployArgs: DeployArguments = {
     name: "GimmeToken",
     symbol: "GIMME",
     mintingFee: ethers.utils.parseEther("0.01").toString(),
@@ -202,7 +202,54 @@ describe("GimmeToken", () => {
   });
 
   describe("mint NFT", () => {
-    // finish
+    it("mints an NFT with a URL for the token URI on deploy", async () => {
+      const contract = await getDeployedContract(deployArgs);
+
+      const firstTokenOwnerTxn = await contract.ownerOf(1);
+      expect(firstTokenOwnerTxn).to.equal(account1.address);
+    });
+
+    it("mints an NFT with a URL for the token URI on function call", async () => {
+      const contract = await getDeployedContract(deployArgs);
+
+      const mockTokenURL = "www.testing.com";
+      await contract["mintNFT(string)"](mockTokenURL);
+
+      const secondTokenOwnerTxn = await contract.ownerOf(2);
+      expect(secondTokenOwnerTxn).to.equal(account1.address);
+
+      const secondTokenURITxn = await contract.tokenURI(2);
+      expect(secondTokenURITxn).to.equal(mockTokenURL);
+    });
+
+    it("mints an NFT with static token URI via function call", async () => {
+      const contract = await getDeployedContract(deployArgs);
+
+      const mockTokenMetadataJSON = {
+        description: "test description",
+        image: "www.testing.com",
+        name: "test name",
+        attributes: [
+          {
+            trait_type: "test trait",
+            value: "test value",
+          },
+        ],
+      };
+
+      // @ts-ignore TS cannot detect the (string,string)[] attributes sub-type
+      await contract["mintNFT((string,string,string,(string,string)[]))"](
+        mockTokenMetadataJSON
+      );
+
+      const secondTokenURITxn = await contract.tokenURI(2);
+      // This trims off the "data:application/json;base64," portion of the string
+      const [, base46EncodedMetadata] = secondTokenURITxn.split(",");
+
+      expect(JSON.parse(atob(base46EncodedMetadata))).to.eql(
+        mockTokenMetadataJSON
+      );
+    });
   });
 
   describe("updateTokenURI", () => {
@@ -214,13 +261,17 @@ describe("GimmeToken", () => {
   });
 
   describe("withdrawing ether", () => {
-    // finish
+    // it("allows owner to withdraw ether", async () => {
+    //   const contract = await getDeployedContract(deployArgs);
+    //   await contract.connect(account2).sendTransaction({});
+    // });
   });
 
   describe("ownership", () => {
     it("instantiates a new contract with owner", async () => {
       const contract = await getDeployedContract(deployArgs);
       const owner = await contract.owner();
+
       expect(owner).to.equal(account1.address);
     });
 
@@ -229,6 +280,7 @@ describe("GimmeToken", () => {
       const transferOwnershipTxn = await contract.transferOwnership(
         account2.address
       );
+
       expect(transferOwnershipTxn)
         .to.emit(contract, "OwnershipTransferred")
         .withArgs(account1.address, account2.address);
@@ -252,6 +304,7 @@ describe("GimmeToken", () => {
     it("renounces ownership", async () => {
       const contract = await getDeployedContract(deployArgs);
       const renounceOwnershipTxn = contract.renounceOwnership();
+
       expect(renounceOwnershipTxn)
         .to.emit(contract, "OwnershipTransferred")
         .withArgs(
