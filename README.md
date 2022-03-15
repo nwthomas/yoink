@@ -44,3 +44,6 @@ A complete testing suite has been written in TypeScript utilizing [Hardhat](http
 If you want to try running it, use the command `yarn test` in your terminal in the root of this repo after you have installed all dependencies with the command `yarn install`.
 
 ## ACKNOWLEDGEMENTS
+
+- Huge thanks to my capstone project team in my code bootcamp for starting me down the Web3 and Solidity path
+- Thank you to Twitter for building a version of profile pictures that I got FOMO over
