@@ -73,7 +73,7 @@ contract GimmeToken is Ownable, ERC721URIStorage {
 
   /// @notice Toggles the boolean value of addresses to be exempt from minting fee
   /// @param _addresses The addresses that will have their exemption toggled
-  /// Note This function can toggle true -> false and false -> true for various
+  /// @dev This function can toggle true -> false and false -> true for various
   /// addresses in the same array within the same transaction
   function toggleExemptAddresses(address[] memory _addresses)
     external
@@ -218,7 +218,7 @@ contract GimmeToken is Ownable, ERC721URIStorage {
 
   /// @notice Allows the contract owner to update the minting fee value
   /// @param _newMintingFee The new minting fee to be saved in state
-  /// Note The minting fee must be greater-than-or-equal-to 0
+  /// @dev The minting fee must be greater-than-or-equal-to 0
   function updateMintingFee(uint256 _newMintingFee) public onlyOwner {
     mintingFee = _newMintingFee;
   }

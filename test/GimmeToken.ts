@@ -1,3 +1,4 @@
+import { BigNumber } from "ethers";
 import type { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signer-with-address";
 import chai from "chai";
 import { ethers } from "hardhat";
@@ -9,7 +10,7 @@ chai.use(solidity);
 type DeployArguments = {
   name: string;
   symbol: string;
-  mintingFee: string;
+  mintingFee: BigNumber;
   firstTokenURL: string;
 };
 
@@ -21,8 +22,8 @@ describe("GimmeToken", () => {
   const deployArgs: DeployArguments = {
     name: "GimmeToken",
     symbol: "GIMME",
-    mintingFee: ethers.utils.parseEther("0.01").toString(),
-    firstTokenURL: "https://www.nathanthomas.dev/nathan-token.json",
+    mintingFee: ethers.utils.parseEther("0.01"),
+    firstTokenURL: "https://wwww.testing.com",
   };
 
   beforeEach(async () => {
@@ -52,6 +53,7 @@ describe("GimmeToken", () => {
 
   describe("deploys", () => {
     it("assigns variables on deploy", async () => {
+      deployArgs.mintingFee = ethers.utils.parseEther("1");
       const contract = await getDeployedContract(deployArgs);
 
       const nameTxn = await contract.name();
@@ -61,9 +63,7 @@ describe("GimmeToken", () => {
       expect(symbolTxn).to.equal("GIMME");
 
       const mintingFeeTxn = await contract.mintingFee();
-      expect(mintingFeeTxn).to.equal(
-        ethers.utils.parseEther("0.01").toString()
-      );
+      expect(mintingFeeTxn).to.equal(ethers.utils.parseEther("1").toString());
     });
 
     it("mints first NFT on deploy with correct metadata", async () => {
@@ -199,6 +199,21 @@ describe("GimmeToken", () => {
         currentState = !currentState;
       }
     });
+
+    it("throws an error if an empty array is sent", async () => {
+      const contract = await getDeployedContract(deployArgs);
+
+      let error;
+      try {
+        await contract.toggleExemptAddresses([]);
+      } catch (newError) {
+        error = newError;
+      }
+
+      expect(
+        String(error).indexOf("GimmeToken: invalid addresses") > -1
+      ).to.equal(true);
+    });
   });
 
   describe("mint NFT", () => {
@@ -268,6 +283,7 @@ describe("GimmeToken", () => {
 
     it("emits a MintToken event on deploy", async () => {
       const contract = await getDeployedContract(deployArgs);
+
       expect(contract.deployTransaction)
         .to.emit(contract, "MintToken")
         .withArgs(account1.address, 1);
@@ -284,11 +300,11 @@ describe("GimmeToken", () => {
     });
   });
 
-  describe("updateTokenURI", () => {
+  describe("minting fee", () => {
     // finish
   });
 
-  describe("minting fee", () => {
+  describe("updateTokenURI", () => {
     // finish
   });
 

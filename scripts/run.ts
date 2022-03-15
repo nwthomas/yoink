@@ -8,8 +8,8 @@ async function main() {
   // Update these with values before deploying
   const name = ""; // Example: "Uniswap"
   const symbol = ""; // Example: "UNI"
-  const mintingFee = "0"; // Example: ethers.utils.parseEther("0.01").toString();
-  const firstTokenMetadataURI = ""; // Example: https://www.nathanthomas.dev/nathan-metadata.json
+  const mintingFee = ethers.utils.parseEther("0.1"); // Example: ethers.utils.parseEther("0.05");
+  const firstTokenMetadataURI = "https://www.testing.com"; // Example: https://www.<your domain>.com/metadata.json
 
   const gimmeToken = await GimmeTokenContractFactory.deploy(
     name,
