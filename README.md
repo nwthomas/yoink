@@ -1,6 +1,8 @@
 ### NOTE: This contract is completely unaudited. If you use this, you do so at your own risk!
 
-# GIMME TOKEN ⛏
+<div>
+    <h1 style="width:100%;text-align:center;">GIMME TOKEN ⛏</h1>
+</div>
 
 ## TABLE OF CONTENTS
 
