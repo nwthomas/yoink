@@ -18,10 +18,10 @@ type HardhatUserConfigExtended = HardhatUserConfig & { [key: string]: any };
 const config: HardhatUserConfigExtended = {
   solidity: "0.8.12",
   networks: {
-    mainnet: {
-      url: process.env.MAINNET_APP_SECRET_KEY || "",
-      accounts: [process.env.MAINNET_WALLET_PRIVATE_KEY || ""],
-    },
+    // mainnet: {
+    //   url: process.env.MAINNET_APP_SECRET_KEY || "",
+    //   accounts: [process.env.MAINNET_WALLET_PRIVATE_KEY || ""],
+    // },
     rinkeby: {
       url: process.env.RINKEBY_APP_SECRET_KEY || "",
       accounts: [process.env.RINKEBY_WALLET_PRIVATE_KEY || ""],

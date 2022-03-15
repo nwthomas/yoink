@@ -22,7 +22,7 @@ If you want to use these contracts locally, you'll need to be prepared to find p
 
 Once you run `yarn install` and put the values from the paragraph above into a `.env` file (following the example of the `.env.example` file), you should be set to run any of the commands in the `package.json` file.
 
-The big exception is if you want to run [Slither](https://github.com/crytic/slither). In order to use this, you'll need a stable build of Python installed on your machine, run a [Pipenv shell](https://pipenv.pypa.io/en/latest/), and use the command `pipenv slither .`.
+The big exception is if you want to run [Slither](https://github.com/crytic/slither). In order to use this, you'll need a stable build of Python installed on your machine, run a [Pipenv shell](https://pipenv.pypa.io/en/latest/), install with `pipenv install`, and use the command `pipenv slither .`.
 
 ## TECHNOLOGY STACK
 
