@@ -14,17 +14,25 @@ type DeployArguments = {
   firstTokenURL: string;
 };
 
+type Attribute = {
+  trait_type: string;
+  value: string;
+};
+
+type MetadataJSON = {
+  description: string;
+  image: string;
+  name: string;
+  attributes: Attribute[];
+};
+
 describe("GimmeToken", () => {
   let account1: SignerWithAddress;
   let account2: SignerWithAddress;
   let account3: SignerWithAddress;
 
-  const deployArgs: DeployArguments = {
-    name: "GimmeToken",
-    symbol: "GIMME",
-    mintingFee: ethers.utils.parseEther("0.01"),
-    firstTokenURL: "https://wwww.testing.com",
-  };
+  let deployArgs: DeployArguments;
+  let mockTokenMetadataJSON: MetadataJSON;
 
   beforeEach(async () => {
     const [owner, second, third] = await ethers.getSigners();
@@ -32,6 +40,29 @@ describe("GimmeToken", () => {
     account1 = owner;
     account2 = second;
     account3 = third;
+
+    deployArgs = {
+      name: "GimmeToken",
+      symbol: "GIMME",
+      mintingFee: ethers.utils.parseEther("0.01"),
+      firstTokenURL: "https://wwww.testing.com",
+    };
+
+    mockTokenMetadataJSON = Object.freeze({
+      description: "test description",
+      image: "www.testing.com",
+      name: "test name",
+      attributes: [
+        {
+          trait_type: "test trait 1",
+          value: "test value 1",
+        },
+        {
+          trait_type: "test trait 2",
+          value: "test value 2",
+        },
+      ],
+    });
   });
 
   const getDeployedContract = async ({
@@ -76,12 +107,28 @@ describe("GimmeToken", () => {
       expect(firstTokenTxn).to.equal(deployArgs.firstTokenURL);
     });
 
-    it("allows an empty string for first token URI", async () => {
+    it("allows empty strings for initialvariables", async () => {
+      deployArgs.name = "";
+      deployArgs.symbol = "";
       deployArgs.firstTokenURL = "";
       const contract = await getDeployedContract(deployArgs);
 
+      const tokenNameTxn = await contract.name();
+      expect(tokenNameTxn).to.equal("");
+
+      const tokenSymbolTxn = await contract.symbol();
+      expect(tokenSymbolTxn).to.equal("");
+
       const firstTokenTxn = await contract.tokenURI(1);
       expect(firstTokenTxn).to.equal("");
+    });
+
+    it("allows 0 ether as minting fee", async () => {
+      deployArgs.mintingFee = ethers.utils.parseEther("0");
+      const contract = await getDeployedContract(deployArgs);
+
+      const mintingFeeTxn = await contract.mintingFee();
+      expect(mintingFeeTxn).to.equal(ethers.utils.parseEther("0"));
     });
   });
 
@@ -200,39 +247,25 @@ describe("GimmeToken", () => {
       }
     });
 
-    it("throws an error if an empty array is sent", async () => {
+    it("throws error if non-owner calls it", async () => {
       const contract = await getDeployedContract(deployArgs);
 
       let error;
       try {
-        await contract.toggleExemptAddresses([]);
+        await contract
+          .connect(account3)
+          .toggleExemptAddresses([account1.address]);
       } catch (newError) {
         error = newError;
       }
 
       expect(
-        String(error).indexOf("GimmeToken: invalid addresses") > -1
+        String(error).indexOf("Ownable: caller is not the owner") > -1
       ).to.equal(true);
     });
   });
 
   describe("mint NFT", () => {
-    const mockTokenMetadataJSON = Object.freeze({
-      description: "test description",
-      image: "www.testing.com",
-      name: "test name",
-      attributes: [
-        {
-          trait_type: "test trait 1",
-          value: "test value 1",
-        },
-        {
-          trait_type: "test trait 2",
-          value: "test value 2",
-        },
-      ],
-    });
-
     it("mints an NFT with a URL for the token URI on deploy", async () => {
       const contract = await getDeployedContract(deployArgs);
 
@@ -301,18 +334,209 @@ describe("GimmeToken", () => {
   });
 
   describe("minting fee", () => {
-    // finish
+    it("can update the minting fee", async () => {
+      const contract = await getDeployedContract(deployArgs);
+
+      let currentMintingFeeTxn = await contract.mintingFee();
+      expect(currentMintingFeeTxn).to.equal(deployArgs.mintingFee);
+
+      const newMintingFee = ethers.utils.parseEther("1");
+      await contract.updateMintingFee(newMintingFee);
+
+      currentMintingFeeTxn = await contract.mintingFee();
+      expect(currentMintingFeeTxn).to.equal(newMintingFee);
+    });
+
+    it("throws error if non-owner tries to call it", async () => {
+      const contract = await getDeployedContract(deployArgs);
+
+      let error;
+      try {
+        await contract
+          .connect(account3)
+          .updateMintingFee(ethers.utils.parseEther("100"));
+      } catch (newError) {
+        error = newError;
+      }
+
+      expect(
+        String(error).indexOf("Ownable: caller is not the owner") > -1
+      ).to.equal(true);
+    });
+
+    it("is not enforced if minting address is exempt", async () => {
+      const contract = await getDeployedContract(deployArgs);
+
+      await contract.toggleExemptAddresses([account2.address]);
+      await contract.connect(account2)["mintNFT(string)"]("www.testing.com");
+
+      const secondTokenOwnerTxn = await contract.ownerOf(2);
+      expect(secondTokenOwnerTxn).to.equal(account2.address);
+    });
+
+    it("throws error if minting address is not exempt", async () => {
+      const contract = await getDeployedContract(deployArgs);
+
+      let error;
+      try {
+        await contract.connect(account2)["mintNFT(string)"]("www.testing.com");
+      } catch (newError) {
+        error = newError;
+      }
+
+      expect(String(error).indexOf("GimmeToken: invalid fee") > -1).to.equal(
+        true
+      );
+    });
+
+    it("allows not paying fee if msg.sender is owner", async () => {
+      deployArgs.mintingFee = ethers.utils.parseEther("100");
+      const contract = await getDeployedContract(deployArgs);
+
+      // @ts-ignore TS cannot detect the (string,string)[] attributes sub-type
+      await contract
+        .connect(account1)
+        ["mintNFT((string,string,string,(string,string)[]))"](
+          mockTokenMetadataJSON
+        );
+
+      const secondTokenOwnerTxn = await contract.ownerOf(2);
+      expect(secondTokenOwnerTxn).to.equal(account1.address);
+    });
+
+    it("allows any address to mint a token if paying minting fee", async () => {
+      deployArgs.mintingFee = ethers.utils.parseEther("1");
+      const contract = await getDeployedContract(deployArgs);
+
+      // @ts-ignore TS cannot detect the (string,string)[] attributes sub-type
+      await contract
+        .connect(account2)
+        ["mintNFT((string,string,string,(string,string)[]))"](
+          mockTokenMetadataJSON,
+          { from: account2.address, value: ethers.utils.parseEther("1") }
+        );
+
+      const contractBalanceTxn = await contract.provider.getBalance(
+        contract.address
+      );
+      expect(contractBalanceTxn).to.equal(ethers.utils.parseEther("1"));
+
+      const secondTokenOwnerTxn = await contract.ownerOf(2);
+      expect(secondTokenOwnerTxn).to.equal(account2.address);
+    });
+
+    it("throws error if msg.value is less than minting fee", async () => {
+      deployArgs.mintingFee = ethers.utils.parseEther("1");
+      const contract = await getDeployedContract(deployArgs);
+
+      let error;
+      try {
+        // @ts-ignore TS cannot detect the (string,string)[] attributes sub-type
+        await contract
+          .connect(account3)
+          ["mintNFT((string,string,string,(string,string)[]))"](
+            mockTokenMetadataJSON,
+            {
+              from: account3.address,
+              value: ethers.utils.parseEther("0.9999999"),
+            }
+          );
+      } catch (newError) {
+        error = newError;
+      }
+
+      expect(String(error).indexOf("GimmeToken: invalid fee") > -1).to.equal(
+        true
+      );
+    });
   });
 
   describe("updateTokenURI", () => {
-    // finish
+    // TODO: Add tests for updating with both URL and static JSON URI as well as failing from modifier
   });
 
   describe("withdrawing ether", () => {
-    // it("allows owner to withdraw ether", async () => {
-    //   const contract = await getDeployedContract(deployArgs);
-    //   await contract.connect(account2).sendTransaction({});
-    // });
+    it("allows the owner of the contract to withdraw", async () => {
+      const contract = await getDeployedContract(deployArgs);
+
+      // @ts-ignore TS cannot detect the (string,string)[] attributes sub-type
+      await contract["mintNFT((string,string,string,(string,string)[]))"](
+        mockTokenMetadataJSON,
+        {
+          from: account1.address,
+          value: ethers.utils.parseEther("1"),
+        }
+      );
+
+      let contractBalanceTxn = await contract.provider.getBalance(
+        contract.address
+      );
+      expect(contractBalanceTxn).to.equal(ethers.utils.parseEther("1"));
+
+      await contract.connect(account1).withdrawAllEther();
+
+      contractBalanceTxn = await contract.provider.getBalance(contract.address);
+      expect(contractBalanceTxn).to.equal(ethers.utils.parseEther("0"));
+    });
+
+    it("throws an error if a non-owner address attempts to withdraw", async () => {
+      const contract = await getDeployedContract(deployArgs);
+
+      // @ts-ignore TS cannot detect the (string,string)[] attributes sub-type
+      await contract["mintNFT((string,string,string,(string,string)[]))"](
+        mockTokenMetadataJSON,
+        {
+          from: account1.address,
+          value: ethers.utils.parseEther("1"),
+        }
+      );
+
+      let error;
+      try {
+        await contract.connect(account2).withdrawAllEther();
+      } catch (newError) {
+        error = newError;
+      }
+
+      expect(
+        String(error).indexOf("Ownable: caller is not the owner") > -1
+      ).to.equal(true);
+    });
+
+    it("throws an error if the contract balance is 0", async () => {
+      const contract = await getDeployedContract(deployArgs);
+
+      let error;
+      try {
+        await contract.withdrawAllEther();
+      } catch (newError) {
+        error = newError;
+      }
+
+      expect(String(error).indexOf("GimmeToken: no ether") > -1).to.equal(true);
+    });
+
+    it("emits a Withdraw event", async () => {
+      const contract = await getDeployedContract(deployArgs);
+
+      // @ts-ignore TS cannot detect the (string,string)[] attributes sub-type
+      await contract["mintNFT((string,string,string,(string,string)[]))"](
+        mockTokenMetadataJSON,
+        {
+          from: account1.address,
+          value: ethers.utils.parseEther("1"),
+        }
+      );
+
+      const withdrawTxn = await contract.withdrawAllEther();
+      expect(withdrawTxn)
+        .to.emit(contract, "Withdraw")
+        .withArgs(
+          account1.address,
+          contract.address,
+          ethers.utils.parseEther("1")
+        );
+    });
   });
 
   describe("ownership", () => {

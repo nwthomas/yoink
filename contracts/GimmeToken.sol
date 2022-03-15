@@ -6,9 +6,9 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import { Base64 } from "./libraries/Base64.sol";
 
 /// @title GimmeToken
-/// @notice Creates modifiable NFTs for any wallet address. This contract is not
+/// @notice Creates modifiable NFTs for any wallet address - this contract is not
 /// audited, so use at your own risk
-/// @author Nathan Thomas <nathan@loom.com>
+/// @author Nathan Thomas
 contract GimmeToken is Ownable, ERC721URIStorage {
   using Strings for uint256;
 
@@ -40,13 +40,7 @@ contract GimmeToken is Ownable, ERC721URIStorage {
       exemptAddresses[msg.sender] ||
         owner() == msg.sender ||
         msg.value >= mintingFee,
-      string(
-        abi.encodePacked(
-          "GimmeToken: fee of ",
-          (mintingFee / 1 ether).toString(),
-          " ether required"
-        )
-      )
+      "GimmeToken: invalid fee"
     );
     _;
   }
@@ -79,8 +73,6 @@ contract GimmeToken is Ownable, ERC721URIStorage {
     external
     onlyOwner
   {
-    require(_addresses.length > 0, "GimmeToken: invalid addresses");
-
     for (uint256 i = 0; i < _addresses.length; i++) {
       exemptAddresses[_addresses[i]] = !exemptAddresses[_addresses[i]];
 
@@ -227,7 +219,7 @@ contract GimmeToken is Ownable, ERC721URIStorage {
   function withdrawAllEther() external onlyOwner {
     uint256 addressBalance = address(this).balance;
 
-    require(address(this).balance > 0, "GimmeToken: no ether in contract");
+    require(address(this).balance > 0, "GimmeToken: no ether");
 
     (bool success, ) = msg.sender.call{ value: addressBalance }("");
     require(success, "GimmeToken: withdraw failed");
