@@ -290,8 +290,7 @@ describe("GimmeToken", () => {
       it("increments newTokenID each time", async () => {
         const contract = await getDeployedContract(deployArgs);
 
-        // Starts at 2 due to mint on deploy which is token ID = 1
-        for (let i = 2; i <= 10; i++) {
+        for (let i = 1; i <= 10; i++) {
           const tokenIDTxn = await contract.newTokenID();
           expect(tokenIDTxn).to.equal(i);
           await contract["mintNFT(string)"]("www.testing.com");
@@ -340,8 +339,7 @@ describe("GimmeToken", () => {
       it("increments newTokenID each time", async () => {
         const contract = await getDeployedContract(deployArgs);
 
-        // Starts at 2 due to mint on deploy which is token ID = 1
-        for (let i = 2; i <= 10; i++) {
+        for (let i = 1; i <= 10; i++) {
           const tokenIDTxn = await contract.newTokenID();
           expect(tokenIDTxn).to.equal(i);
           // @ts-ignore TS cannot detect the (string,string)[] attributes sub-type

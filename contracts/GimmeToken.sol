@@ -12,7 +12,7 @@ import { Base64 } from "./libraries/Base64.sol";
 contract GimmeToken is Ownable, ERC721URIStorage {
   using Strings for uint256;
 
-  uint256 public newTokenID = 1;
+  uint256 public newTokenID = 0;
   uint256 public mintingFee = 0;
 
   mapping(address => bool) public exemptAddresses;
@@ -93,11 +93,12 @@ contract GimmeToken is Ownable, ERC721URIStorage {
     payable
     isMinimumFeeOrExemptAddress
   {
+    newTokenID += 1;
+
     _safeMint(msg.sender, newTokenID);
     emit MintToken(msg.sender, newTokenID);
 
     updateTokenURI(newTokenID, _newTokenMetadataURI);
-    newTokenID += 1;
   }
 
   /// @notice Mins a new custom NFT with static token metadata
@@ -109,11 +110,12 @@ contract GimmeToken is Ownable, ERC721URIStorage {
     payable
     isMinimumFeeOrExemptAddress
   {
+    newTokenID += 1;
+
     _safeMint(msg.sender, newTokenID);
     emit MintToken(msg.sender, newTokenID);
 
     updateTokenURI(newTokenID, _newTokenMetadata);
-    newTokenID += 1;
   }
 
   /// @notice Allows the owner of any NFT to update the URL for that token's URI
