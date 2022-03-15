@@ -452,7 +452,33 @@ describe("GimmeToken", () => {
   });
 
   describe("updateTokenURI", () => {
-    // TODO: Add tests for updating with both URL and static JSON URI as well as failing from modifier
+    it("updates URL for token URI", async () => {
+      // finish
+    });
+
+    it("updates metadata object for token URI", async () => {
+      // finish
+    });
+
+    it("handles metadata object with no attributes", async () => {
+      // finish
+    });
+
+    it("handles metadata object with a few attributes", async () => {
+      // finish
+    });
+
+    it("haneles metadata object with many attributes", async () => {
+      // finish
+    });
+
+    it("throws error if calling address is not owner of token", async () => {
+      // finish
+    });
+
+    it("emits UpdateTokenURI event", async () => {
+      // finish
+    });
   });
 
   describe("withdrawing ether", () => {

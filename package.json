@@ -4,6 +4,7 @@
   "description": "Smart contracts for minting your own NFT tokens",
   "main": "index.js",
   "scripts": {
+    "clean": "npx hardhat clean",
     "compile": "cross-env TS_NODE_TRANSPILE_ONLY=true hardhat compile",
     "coverage": "yarn typechain && hardhat coverage --solcoverjs ./.solcover.ts --temp artifacts --testfiles \"./test/**/*.ts\"",
     "deploy-local": "npx hardhat run scripts/deploy.ts --network localhost",
