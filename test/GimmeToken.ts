@@ -452,117 +452,163 @@ describe("GimmeToken", () => {
   });
 
   describe("updateTokenURI", () => {
-    it("updates URL for token URI", async () => {
-      const contract = await getDeployedContract(deployArgs);
+    describe("with URL", () => {
+      it("updates token URI", async () => {
+        const contract = await getDeployedContract(deployArgs);
 
-      await contract["updateTokenURI(uint256,string)"](1, "www.updated.com");
+        await contract["updateTokenURI(uint256,string)"](1, "www.updated.com");
 
-      const firstTokenURITxn = await contract.tokenURI(1);
-      expect(firstTokenURITxn).to.equal("www.updated.com");
+        const firstTokenURITxn = await contract.tokenURI(1);
+        expect(firstTokenURITxn).to.equal("www.updated.com");
+      });
+
+      it("throws error if calling address is not owner of token", async () => {
+        const contract = await getDeployedContract(deployArgs);
+
+        // @ts-ignore TS cannot detect the (string,string)[] attributes sub-type
+        await contract
+          .connect(account2)
+          ["mintNFT((string,string,string,(string,string)[]))"](
+            mockTokenMetadataJSON,
+            { from: account2.address, value: ethers.utils.parseEther("1") }
+          );
+
+        let error;
+        try {
+          await contract["updateTokenURI(uint256,string)"](
+            2,
+            "www.updated.com"
+          );
+        } catch (newError) {
+          error = newError;
+        }
+
+        expect(
+          String(error).indexOf("GimmeToken: not token owner") > -1
+        ).to.equal(true);
+      });
+
+      it("emits UpdateTokenURI event", async () => {
+        const contract = await getDeployedContract(deployArgs);
+
+        const updateTokenURITxn = await contract
+          .connect(account1)
+          ["updateTokenURI(uint256,string)"](1, "www.updated.com");
+
+        expect(updateTokenURITxn)
+          .to.emit(contract, "UpdateTokenURI")
+          .withArgs(account1.address, 1);
+      });
     });
 
-    it("updates metadata object for token URI", async () => {
-      const contract = await getDeployedContract(deployArgs);
+    describe("with metadata JSON", () => {
+      it("updates token URI", async () => {
+        const contract = await getDeployedContract(deployArgs);
 
-      // @ts-ignore TS cannot detect the (string,string)[] attributes sub-type
-      await contract[
-        "updateTokenURI(uint256,(string,string,string,(string,string)[]))"
-      ](1, mockTokenMetadataJSON);
+        // @ts-ignore TS cannot detect the (string,string)[] attributes sub-type
+        await contract[
+          "updateTokenURI(uint256,(string,string,string,(string,string)[]))"
+        ](1, mockTokenMetadataJSON);
 
-      const firstTokenURITxn = await contract.tokenURI(1);
-      // This trims off the "data:application/json;base64," portion of the string
-      const [, base46EncodedMetadata] = firstTokenURITxn.split(",");
+        const firstTokenURITxn = await contract.tokenURI(1);
+        // This trims off the "data:application/json;base64," portion of the string
+        const [, base46EncodedMetadata] = firstTokenURITxn.split(",");
 
-      expect(JSON.parse(atob(base46EncodedMetadata))).to.eql(
-        mockTokenMetadataJSON
-      );
-    });
-
-    it("handles metadata object with no attributes", async () => {
-      const contract = await getDeployedContract(deployArgs);
-
-      mockTokenMetadataJSON.attributes = [];
-
-      // @ts-ignore TS cannot detect the (string,string)[] attributes sub-type
-      await contract[
-        "updateTokenURI(uint256,(string,string,string,(string,string)[]))"
-      ](1, mockTokenMetadataJSON);
-
-      const firstTokenURITxn = await contract.tokenURI(1);
-      // This trims off the "data:application/json;base64," portion of the string
-      const [, base46EncodedMetadata] = firstTokenURITxn.split(",");
-
-      expect(JSON.parse(atob(base46EncodedMetadata))).to.eql(
-        mockTokenMetadataJSON
-      );
-    });
-
-    it("haneles metadata object with many attributes", async () => {
-      const contract = await getDeployedContract(deployArgs);
-
-      mockTokenMetadataJSON.attributes = [
-        ...mockTokenMetadataJSON.attributes,
-        {
-          trait_type: "additional 1",
-          value: "additional 1",
-        },
-        {
-          trait_type: "additional 2",
-          value: "additional 2",
-        },
-        {
-          trait_type: "additional 3",
-          value: "additional 3",
-        },
-      ];
-
-      // @ts-ignore TS cannot detect the (string,string)[] attributes sub-type
-      await contract[
-        "updateTokenURI(uint256,(string,string,string,(string,string)[]))"
-      ](1, mockTokenMetadataJSON);
-
-      const firstTokenURITxn = await contract.tokenURI(1);
-      // This trims off the "data:application/json;base64," portion of the string
-      const [, base46EncodedMetadata] = firstTokenURITxn.split(",");
-
-      expect(JSON.parse(atob(base46EncodedMetadata))).to.eql(
-        mockTokenMetadataJSON
-      );
-    });
-
-    it("throws error if calling address is not owner of token", async () => {
-      const contract = await getDeployedContract(deployArgs);
-
-      // @ts-ignore TS cannot detect the (string,string)[] attributes sub-type
-      await contract
-        .connect(account2)
-        ["mintNFT((string,string,string,(string,string)[]))"](
-          mockTokenMetadataJSON,
-          { from: account2.address, value: ethers.utils.parseEther("1") }
+        expect(JSON.parse(atob(base46EncodedMetadata))).to.eql(
+          mockTokenMetadataJSON
         );
+      });
 
-      let error;
-      try {
-        await contract["updateTokenURI(uint256,string)"](2, "www.updated.com");
-      } catch (newError) {
-        error = newError;
-      }
+      it("handles metadata object with no attributes", async () => {
+        const contract = await getDeployedContract(deployArgs);
 
-      expect(
-        String(error).indexOf("GimmeToken: not token owner") > -1
-      ).to.equal(true);
-    });
+        mockTokenMetadataJSON.attributes = [];
 
-    it("emits UpdateTokenURI event", async () => {
-      const contract = await getDeployedContract(deployArgs);
+        // @ts-ignore TS cannot detect the (string,string)[] attributes sub-type
+        await contract[
+          "updateTokenURI(uint256,(string,string,string,(string,string)[]))"
+        ](1, mockTokenMetadataJSON);
 
-      const updateTokenURITxn = await contract
-        .connect(account1)
-        ["updateTokenURI(uint256,string)"](1, "www.updated.com");
+        const firstTokenURITxn = await contract.tokenURI(1);
+        // This trims off the "data:application/json;base64," portion of the string
+        const [, base46EncodedMetadata] = firstTokenURITxn.split(",");
 
-      expect(updateTokenURITxn)
-        .to.emit(contract, "UpdateTokenURI")
-        .withArgs(account1.address, 1);
+        expect(JSON.parse(atob(base46EncodedMetadata))).to.eql(
+          mockTokenMetadataJSON
+        );
+      });
+
+      it("haneles metadata object with many attributes", async () => {
+        const contract = await getDeployedContract(deployArgs);
+
+        mockTokenMetadataJSON.attributes = [
+          ...mockTokenMetadataJSON.attributes,
+          {
+            trait_type: "additional 1",
+            value: "additional 1",
+          },
+          {
+            trait_type: "additional 2",
+            value: "additional 2",
+          },
+          {
+            trait_type: "additional 3",
+            value: "additional 3",
+          },
+        ];
+
+        // @ts-ignore TS cannot detect the (string,string)[] attributes sub-type
+        await contract[
+          "updateTokenURI(uint256,(string,string,string,(string,string)[]))"
+        ](1, mockTokenMetadataJSON);
+
+        const firstTokenURITxn = await contract.tokenURI(1);
+        // This trims off the "data:application/json;base64," portion of the string
+        const [, base46EncodedMetadata] = firstTokenURITxn.split(",");
+
+        expect(JSON.parse(atob(base46EncodedMetadata))).to.eql(
+          mockTokenMetadataJSON
+        );
+      });
+
+      it("throws error if calling address is not owner of token", async () => {
+        const contract = await getDeployedContract(deployArgs);
+
+        // @ts-ignore TS cannot detect the (string,string)[] attributes sub-type
+        await contract
+          .connect(account2)
+          ["mintNFT((string,string,string,(string,string)[]))"](
+            mockTokenMetadataJSON,
+            { from: account2.address, value: ethers.utils.parseEther("1") }
+          );
+
+        let error;
+        try {
+          // @ts-ignore TS cannot detect the (string,string)[] attributes sub-type
+          await contract[
+            "updateTokenURI(uint256,(string,string,string,(string,string)[]))"
+          ](2, mockTokenMetadataJSON);
+        } catch (newError) {
+          error = newError;
+        }
+
+        expect(
+          String(error).indexOf("GimmeToken: not token owner") > -1
+        ).to.equal(true);
+      });
+
+      it("emits UpdateTokenURI event", async () => {
+        const contract = await getDeployedContract(deployArgs);
+
+        // @ts-ignore TS cannot detect the (string,string)[] attributes sub-type
+        const updateTokenURITxn = await contract[
+          "updateTokenURI(uint256,(string,string,string,(string,string)[]))"
+        ](1, mockTokenMetadataJSON);
+
+        expect(updateTokenURITxn)
+          .to.emit(contract, "UpdateTokenURI")
+          .withArgs(account1.address, 1);
+      });
     });
   });
 
