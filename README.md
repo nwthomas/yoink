@@ -38,6 +38,7 @@ These are the main dependencies used in this repo (_Note: This list is not compl
 - [Prettier](https://prettier.io/)
 - [Solhint](https://github.com/protofire/solhint)
 - [Typechain](https://github.com/dethcrypto/TypeChain)
+- [Slither](https://github.com/crytic/slither)
 
 ## TESTING
 
