@@ -1,7 +1,7 @@
 ### NOTE: This contract is unaudited. If you use this, you do so at your own risk.
 
 <div>
-    <h1 style="width:100%;text-align:center;">GIMME TOKEN ⛏</h1>
+    <h1 style="width:100%;text-align:center;">YOINK ⛏</h1>
 </div>
 
 ## TABLE OF CONTENTS

@@ -1,9 +1,7 @@
 import { ethers } from "hardhat";
 
 async function main() {
-  const GimmeTokenContractFactory = await ethers.getContractFactory(
-    "GimmeToken"
-  );
+  const YoinkContractFactory = await ethers.getContractFactory("Yoink");
 
   // Update these with values before deploying
   const name = ""; // Example: "Uniswap"
@@ -11,18 +9,18 @@ async function main() {
   const mintingFee = "0"; // Example: ethers.utils.parseEther("0.01");
   const firstTokenMetadataURI = "https://www.testing.com"; // Example: https://www.<your domain>.com/metadata.json
 
-  const gimmeToken = await GimmeTokenContractFactory.deploy(
+  const yoink = await YoinkContractFactory.deploy(
     name,
     symbol,
     mintingFee,
     firstTokenMetadataURI
   );
 
-  await gimmeToken.deployed();
-  console.log("GimmeToken deployed to:", gimmeToken.address);
+  await yoink.deployed();
+  console.log("Yoink deployed to:", yoink.address);
   console.log(
     "First NFT OpenSea URL: ",
-    `https://testnets.opensea.io/assets/${gimmeToken.address}/1`
+    `https://testnets.opensea.io/assets/${yoink.address}/1`
   );
 }
 

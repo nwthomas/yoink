@@ -26,7 +26,7 @@ type MetadataJSON = {
   attributes: Attribute[];
 };
 
-describe("GimmeToken", () => {
+describe("Yoink", () => {
   let account1: SignerWithAddress;
   let account2: SignerWithAddress;
   let account3: SignerWithAddress;
@@ -42,8 +42,8 @@ describe("GimmeToken", () => {
     account3 = third;
 
     deployArgs = {
-      name: "GimmeToken",
-      symbol: "GIMME",
+      name: "Yoink",
+      symbol: "YNK",
       mintingFee: ethers.utils.parseEther("0.01"),
       firstTokenURL: "https://wwww.testing.com",
     };
@@ -71,7 +71,7 @@ describe("GimmeToken", () => {
     mintingFee,
     firstTokenURL,
   }: DeployArguments) => {
-    const contractFactory = await ethers.getContractFactory("GimmeToken");
+    const contractFactory = await ethers.getContractFactory("Yoink");
     const contract = await contractFactory.deploy(
       name,
       symbol,
@@ -88,10 +88,10 @@ describe("GimmeToken", () => {
       const contract = await getDeployedContract(deployArgs);
 
       const nameTxn = await contract.name();
-      expect(nameTxn).to.equal("GimmeToken");
+      expect(nameTxn).to.equal("Yoink");
 
       const symbolTxn = await contract.symbol();
-      expect(symbolTxn).to.equal("GIMME");
+      expect(symbolTxn).to.equal("YNK");
 
       const mintingFeeTxn = await contract.mintingFee();
       expect(mintingFeeTxn).to.equal(ethers.utils.parseEther("1").toString());
@@ -415,9 +415,7 @@ describe("GimmeToken", () => {
         error = newError;
       }
 
-      expect(String(error).indexOf("GimmeToken: invalid fee") > -1).to.equal(
-        true
-      );
+      expect(String(error).indexOf("Yoink: invalid fee") > -1).to.equal(true);
     });
 
     it("allows not paying fee if msg.sender is owner", async () => {
@@ -476,9 +474,7 @@ describe("GimmeToken", () => {
         error = newError;
       }
 
-      expect(String(error).indexOf("GimmeToken: invalid fee") > -1).to.equal(
-        true
-      );
+      expect(String(error).indexOf("Yoink: invalid fee") > -1).to.equal(true);
     });
   });
 
@@ -514,9 +510,9 @@ describe("GimmeToken", () => {
           error = newError;
         }
 
-        expect(
-          String(error).indexOf("GimmeToken: not token owner") > -1
-        ).to.equal(true);
+        expect(String(error).indexOf("Yoink: not token owner") > -1).to.equal(
+          true
+        );
       });
 
       it("emits UpdateTokenURI event", async () => {
@@ -623,9 +619,9 @@ describe("GimmeToken", () => {
           error = newError;
         }
 
-        expect(
-          String(error).indexOf("GimmeToken: not token owner") > -1
-        ).to.equal(true);
+        expect(String(error).indexOf("Yoink: not token owner") > -1).to.equal(
+          true
+        );
       });
 
       it("emits UpdateTokenURI event", async () => {
@@ -701,7 +697,7 @@ describe("GimmeToken", () => {
         error = newError;
       }
 
-      expect(String(error).indexOf("GimmeToken: no ether") > -1).to.equal(true);
+      expect(String(error).indexOf("Yoink: no ether") > -1).to.equal(true);
     });
 
     it("emits a Withdraw event", async () => {
