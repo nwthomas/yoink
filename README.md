@@ -1,5 +1,3 @@
-### NOTE: This contract is unaudited. If you use this, you do so at your own risk.
-
 <div>
     <h1 style="width:100%;text-align:center;">YOINK ⛏</h1>
 </div>
@@ -13,6 +11,8 @@
 - [Acknowledgements](#acknowledgements)
 
 ## DESCRIPTION
+
+> NOTE: This contract is unaudited. If you use this, you assume all responsibility.
 
 Smart contracts for minting your own custom NFT tokens. This is incredibly useful for social media (e.g. Twitter's NFT profile pictures) as well as a variety of other use cases.
 
@@ -68,5 +68,5 @@ If you want to try running it, use the command `yarn test` in your terminal in t
 
 ## ACKNOWLEDGEMENTS
 
-- Huge thanks to my capstone project team in my code bootcamp for starting me down the Web3 and Solidity path
+- Thanks to my capstone project team in my code bootcamp for starting me down the Web3 and Solidity path
 - Thank you to Twitter for building a version of profile pictures that I got FOMO over
