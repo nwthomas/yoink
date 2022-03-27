@@ -12,6 +12,7 @@ type DeployArguments = {
   symbol: string;
   mintingFee: BigNumber;
   firstTokenURL: string;
+  exemptAddresses: string[];
 };
 
 type Attribute = {
@@ -30,22 +31,27 @@ describe("Yoink", () => {
   let account1: SignerWithAddress;
   let account2: SignerWithAddress;
   let account3: SignerWithAddress;
+  let account4: SignerWithAddress;
+  let account5: SignerWithAddress;
 
   let deployArgs: DeployArguments;
   let mockTokenMetadataJSON: MetadataJSON;
 
   beforeEach(async () => {
-    const [owner, second, third] = await ethers.getSigners();
+    const [owner, second, third, fourth, fifth] = await ethers.getSigners();
 
     account1 = owner;
     account2 = second;
     account3 = third;
+    account4 = fourth;
+    account5 = fifth;
 
     deployArgs = {
       name: "Yoink",
       symbol: "YNK",
       mintingFee: ethers.utils.parseEther("0.01"),
       firstTokenURL: "https://wwww.testing.com",
+      exemptAddresses: [account4.address, account5.address],
     };
 
     mockTokenMetadataJSON = {
@@ -70,13 +76,15 @@ describe("Yoink", () => {
     symbol,
     mintingFee,
     firstTokenURL,
+    exemptAddresses,
   }: DeployArguments) => {
     const contractFactory = await ethers.getContractFactory("Yoink");
     const contract = await contractFactory.deploy(
       name,
       symbol,
       mintingFee,
-      firstTokenURL
+      firstTokenURL,
+      exemptAddresses
     );
 
     return contract;
@@ -165,18 +173,18 @@ describe("Yoink", () => {
       expect(addressExemptionStatusTxn).to.equal(false);
     });
 
-    it("emits an AddExemptAddress event", async () => {
+    it("emits an AddressExemptionChange event to exempt address", async () => {
       const contract = await getDeployedContract(deployArgs);
 
       const addExemptAddressTxn = await contract.toggleExemptAddresses([
         account2.address,
       ]);
       expect(addExemptAddressTxn)
-        .to.emit(contract, "AddExemptAddress")
-        .withArgs(account2.address);
+        .to.emit(contract, "AddressExemptionChange")
+        .withArgs(account2.address, true);
     });
 
-    it("emits a RemoveExemptAddress event", async () => {
+    it("emits a AddressExemptionChange event to remove exemption from address", async () => {
       const contract = await getDeployedContract(deployArgs);
 
       await contract.toggleExemptAddresses([account2.address]);
@@ -185,8 +193,8 @@ describe("Yoink", () => {
         account2.address,
       ]);
       expect(removeExemptAddressTxn)
-        .to.emit(contract, "RemoveExemptAddress")
-        .withArgs(account2.address);
+        .to.emit(contract, "AddressExemptionChange")
+        .withArgs(account2.address, false);
     });
 
     it("can toggle multiple addresses at once", async () => {
@@ -222,14 +230,14 @@ describe("Yoink", () => {
       ]);
 
       expect(toggleExemptionTxn)
-        .to.emit(contract, "AddExemptAddress")
-        .withArgs(account1.address);
+        .to.emit(contract, "AddressExemptionChange")
+        .withArgs(account1.address, true);
       expect(toggleExemptionTxn)
-        .to.emit(contract, "RemoveExemptAddress")
-        .withArgs(account2.address);
+        .to.emit(contract, "AddressExemptionChange")
+        .withArgs(account2.address, false);
       expect(toggleExemptionTxn)
-        .to.emit(contract, "AddExemptAddress")
-        .withArgs(account3.address);
+        .to.emit(contract, "AddressExemptionChange")
+        .withArgs(account3.address, true);
     });
 
     it("allows toggling many times for same address", async () => {

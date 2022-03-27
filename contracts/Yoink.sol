@@ -29,8 +29,7 @@ contract Yoink is Ownable, ERC721URIStorage {
     Attribute[] attributes;
   }
 
-  event AddExemptAddress(address indexed exemptAddress);
-  event RemoveExemptAddress(address indexed removedAddress);
+  event AddressExemptionChange(address indexed changedAddress, bool isExempt);
   event MintToken(address indexed owner, uint256 indexed tokenID);
   event UpdateTokenURI(address indexed owner, uint256 indexed tokenID);
   event Withdraw(address indexed to, address indexed project, uint256 amount);
@@ -59,8 +58,10 @@ contract Yoink is Ownable, ERC721URIStorage {
     string memory _name,
     string memory _symbol,
     uint256 _mintingFee,
-    string memory _firstTokenMetadataURI
+    string memory _firstTokenMetadataURI,
+    address[] memory _exemptAddresses
   ) ERC721(_name, _symbol) {
+    toggleExemptAddresses(_exemptAddresses);
     updateMintingFee(_mintingFee);
     mintNFT(_firstTokenMetadataURI);
   }
@@ -69,18 +70,14 @@ contract Yoink is Ownable, ERC721URIStorage {
   /// @param _addresses The addresses that will have their exemption toggled
   /// @dev This function can toggle true -> false and false -> true for various
   /// addresses in the same array within the same transaction
-  function toggleExemptAddresses(address[] memory _addresses)
-    external
-    onlyOwner
-  {
+  function toggleExemptAddresses(address[] memory _addresses) public onlyOwner {
     for (uint256 i = 0; i < _addresses.length; i++) {
       exemptAddresses[_addresses[i]] = !exemptAddresses[_addresses[i]];
 
-      if (exemptAddresses[_addresses[i]]) {
-        emit AddExemptAddress(_addresses[i]);
-      } else {
-        emit RemoveExemptAddress(_addresses[i]);
-      }
+      emit AddressExemptionChange(
+        _addresses[i],
+        exemptAddresses[_addresses[i]]
+      );
     }
   }
 
@@ -137,14 +134,14 @@ contract Yoink is Ownable, ERC721URIStorage {
     uint256 _tokenID,
     TokenMetadata memory _newTokenMetadata
   ) public isTokenOwner(_tokenID) {
-    _setTokenURI(_tokenID, _buildTokenURI(_newTokenMetadata));
+    _setTokenURI(_tokenID, buildTokenURI(_newTokenMetadata));
     emit UpdateTokenURI(msg.sender, _tokenID);
   }
 
   /// @notice Builds a static token URI in base 64 encoding to be saved in state
   /// @param _metadata The metadata to be converted to JSON and base 64 encoded
-  function _buildTokenURI(TokenMetadata memory _metadata)
-    internal
+  function buildTokenURI(TokenMetadata memory _metadata)
+    public
     pure
     returns (string memory)
   {
