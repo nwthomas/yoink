@@ -8,12 +8,14 @@ async function main() {
   const symbol = ""; // Example: "UNI"
   const mintingFee = "0"; // Example: ethers.utils.parseEther("0.01");
   const firstTokenMetadataURI = "https://www.testing.com"; // Example: https://www.<your domain>.com/metadata.json
+  const exemptAddresses: string[] = [];
 
   const yoink = await YoinkContractFactory.deploy(
     name,
     symbol,
     mintingFee,
-    firstTokenMetadataURI
+    firstTokenMetadataURI,
+    exemptAddresses
   );
 
   await yoink.deployed();
