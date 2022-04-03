@@ -8,7 +8,7 @@ async function main() {
   const symbol = ""; // Example: "UNI"
   const mintingFee = "0"; // Example: ethers.utils.parseEther("0.01");
   const firstTokenMetadataURI = "https://www.testing.com"; // Example: https://www.<your domain>.com/metadata.json
-  const exemptAddresses: string[] = [];
+  const exemptAddresses: string[] = []; // Array of addresses to exempt on deploy (can be empty)
 
   const yoink = await YoinkContractFactory.deploy(
     name,
@@ -21,7 +21,7 @@ async function main() {
   await yoink.deployed();
   console.log("Yoink deployed to:", yoink.address);
   console.log(
-    "First NFT OpenSea URL: ",
+    "View address on OpenSea: ",
     `https://testnets.opensea.io/assets/${yoink.address}/1`
   );
 }
