@@ -3,6 +3,8 @@ import { ethers } from "hardhat";
 const ethProvider = require("eth-provider");
 
 async function main() {
+  // For more information about how to set up Frame deployment, check out:
+  // https://github.com/NomicFoundation/hardhat/issues/1159
   const frame = ethProvider("frame", {
     alchemyId: process.env.MAINNET_APP_SECRET_KEY,
   });
