@@ -3,7 +3,9 @@ import { ethers } from "hardhat";
 const ethProvider = require("eth-provider");
 
 async function main() {
-  const frame = ethProvider("frame");
+  const frame = ethProvider("frame", {
+    alchemyId: process.env.MAINNET_APP_SECRET_KEY,
+  });
   const YoinkContractFactory = await ethers.getContractFactory("Yoink");
 
   // Update these with values before deploying
@@ -25,7 +27,7 @@ async function main() {
 
   const result = await frame.request({
     method: "eth_sendTransaction",
-    params: deployTxn,
+    params: [deployTxn],
   });
 
   console.log("Yoink deployed to:", result.address);
