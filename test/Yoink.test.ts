@@ -180,7 +180,7 @@ describe("Yoink", () => {
         account2.address,
       ]);
       expect(addExemptAddressTxn)
-        .to.emit(contract, "AddressExemptionChange")
+        .to.emit(contract, "AddressExemptionChanged")
         .withArgs(account2.address, true);
     });
 
@@ -193,7 +193,7 @@ describe("Yoink", () => {
         account2.address,
       ]);
       expect(removeExemptAddressTxn)
-        .to.emit(contract, "AddressExemptionChange")
+        .to.emit(contract, "AddressExemptionChanged")
         .withArgs(account2.address, false);
     });
 
@@ -230,13 +230,13 @@ describe("Yoink", () => {
       ]);
 
       expect(toggleExemptionTxn)
-        .to.emit(contract, "AddressExemptionChange")
+        .to.emit(contract, "AddressExemptionChanged")
         .withArgs(account1.address, true);
       expect(toggleExemptionTxn)
-        .to.emit(contract, "AddressExemptionChange")
+        .to.emit(contract, "AddressExemptionChanged")
         .withArgs(account2.address, false);
       expect(toggleExemptionTxn)
-        .to.emit(contract, "AddressExemptionChange")
+        .to.emit(contract, "AddressExemptionChanged")
         .withArgs(account3.address, true);
     });
 
@@ -309,7 +309,7 @@ describe("Yoink", () => {
         const contract = await getDeployedContract(deployArgs);
 
         expect(contract.deployTransaction)
-          .to.emit(contract, "MintToken")
+          .to.emit(contract, "MintedToken")
           .withArgs(account1.address, 1);
       });
 
@@ -321,7 +321,7 @@ describe("Yoink", () => {
         );
 
         expect(mintTokenTxn)
-          .to.emit(contract, "MintToken")
+          .to.emit(contract, "MintedToken")
           .withArgs(account1.address, 2);
       });
     });
@@ -366,7 +366,7 @@ describe("Yoink", () => {
         ](mockTokenMetadataJSON);
 
         expect(mintTokenTxn)
-          .to.emit(contract, "MintToken")
+          .to.emit(contract, "MintedToken")
           .withArgs(account1.address, 2);
       });
     });
@@ -531,7 +531,7 @@ describe("Yoink", () => {
           ["updateTokenURI(uint256,string)"](1, "www.updated.com");
 
         expect(updateTokenURITxn)
-          .to.emit(contract, "UpdateTokenURI")
+          .to.emit(contract, "UpdatedTokenURI")
           .withArgs(account1.address, 1);
       });
     });
@@ -641,7 +641,7 @@ describe("Yoink", () => {
         ](1, mockTokenMetadataJSON);
 
         expect(updateTokenURITxn)
-          .to.emit(contract, "UpdateTokenURI")
+          .to.emit(contract, "UpdatedTokenURI")
           .withArgs(account1.address, 1);
       });
     });

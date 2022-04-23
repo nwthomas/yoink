@@ -29,9 +29,9 @@ contract Yoink is Ownable, ERC721URIStorage {
     Attribute[] attributes;
   }
 
-  event AddressExemptionChange(address indexed changedAddress, bool isExempt);
-  event MintToken(address indexed owner, uint256 indexed tokenID);
-  event UpdateTokenURI(address indexed owner, uint256 indexed tokenID);
+  event AddressExemptionChanged(address indexed changedAddress, bool isExempt);
+  event MintedToken(address indexed owner, uint256 indexed tokenID);
+  event UpdatedTokenURI(address indexed owner, uint256 indexed tokenID);
   event Withdraw(address indexed to, address indexed project, uint256 amount);
 
   modifier isMinimumFeeOrExemptAddress() {
@@ -74,7 +74,7 @@ contract Yoink is Ownable, ERC721URIStorage {
     for (uint256 i = 0; i < _addresses.length; i++) {
       exemptAddresses[_addresses[i]] = !exemptAddresses[_addresses[i]];
 
-      emit AddressExemptionChange(
+      emit AddressExemptionChanged(
         _addresses[i],
         exemptAddresses[_addresses[i]]
       );
@@ -93,7 +93,7 @@ contract Yoink is Ownable, ERC721URIStorage {
     newTokenID += 1;
 
     _safeMint(msg.sender, newTokenID);
-    emit MintToken(msg.sender, newTokenID);
+    emit MintedToken(msg.sender, newTokenID);
 
     updateTokenURI(newTokenID, _newTokenMetadataURI);
   }
@@ -110,7 +110,7 @@ contract Yoink is Ownable, ERC721URIStorage {
     newTokenID += 1;
 
     _safeMint(msg.sender, newTokenID);
-    emit MintToken(msg.sender, newTokenID);
+    emit MintedToken(msg.sender, newTokenID);
 
     updateTokenURI(newTokenID, _newTokenMetadata);
   }
@@ -123,7 +123,7 @@ contract Yoink is Ownable, ERC721URIStorage {
     isTokenOwner(_tokenID)
   {
     _setTokenURI(_tokenID, _newTokenMetadataURI);
-    emit UpdateTokenURI(msg.sender, _tokenID);
+    emit UpdatedTokenURI(msg.sender, _tokenID);
   }
 
   /// @notice Allows the owner of any token to assign a static metadata object
@@ -135,7 +135,7 @@ contract Yoink is Ownable, ERC721URIStorage {
     TokenMetadata memory _newTokenMetadata
   ) public isTokenOwner(_tokenID) {
     _setTokenURI(_tokenID, buildTokenURI(_newTokenMetadata));
-    emit UpdateTokenURI(msg.sender, _tokenID);
+    emit UpdatedTokenURI(msg.sender, _tokenID);
   }
 
   /// @notice Builds a static token URI in base 64 encoding to be saved in state
