@@ -27,16 +27,10 @@ async function main() {
 
   deployTxn.from = (await frame.request({ method: "eth_requestAccounts" }))[0];
 
-  const result = await frame.request({
+  await frame.request({
     method: "eth_sendTransaction",
     params: [deployTxn],
   });
-
-  console.log("Yoink deployed to:", result.address);
-  console.log(
-    "View address on OpenSea: ",
-    `https://testnets.opensea.io/assets/${result.address}/1`
-  );
 }
 
 main().catch((error) => {
