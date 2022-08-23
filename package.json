@@ -18,7 +18,8 @@
     "start": "npx hardhat run scripts/run.ts",
     "server": "npx hardhat node",
     "test": "nodemon -x 'npx hardhat test' -w contracts -w test -e ts,sol",
-    "typechain": "cross-env TS_NODE_TRANSPILE_ONLY=true hardhat typechain"
+    "typechain": "cross-env TS_NODE_TRANSPILE_ONLY=true hardhat typechain",
+    "verify": "npx hardhat run scripts/verification.ts --network mainnet"
   },
   "repository": {
     "type": "git",
@@ -42,7 +43,7 @@
   "homepage": "https://github.com/nwthomas/yoink#readme",
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.0",
-    "@nomiclabs/hardhat-etherscan": "^3.0.0",
+    "@nomiclabs/hardhat-etherscan": "^3.1.0",
     "@nomiclabs/hardhat-waffle": "^2.0.0",
     "@openzeppelin/contracts": "^4.5.0",
     "@typechain/ethers-v5": "^7.0.1",
